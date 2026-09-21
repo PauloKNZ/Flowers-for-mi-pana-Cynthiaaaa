@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para Cynthia 🌼</title>
+
+<!-- Fuentes de Google (si no cargan, el navegador usa las de respaldo) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ 1. COLORES (cámbialos aquí y cambia toda la página) ============ */
+  :root {
+    --cielo-arriba: #E3D9FB;
+    --cielo-abajo:  #FFEBD8;
+    --tinta:        #3A2F5B;
+    --papel:        #FFFDF8;
+    --amarillo:     #FFE45C;
+    --hoja:         #3E9B5B;
+    --sobre:        #FFF1C9;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Quicksand', system-ui, sans-serif; font-weight: 500;
+    color: var(--tinta);
+    background: linear-gradient(180deg, var(--cielo-arriba) 0%, var(--cielo-abajo) 100%);
+    overflow: hidden;
+  }
+
+  /* ============ 2. FONDO: resplandores suaves y suelo ============ */
+  .brillo { position: fixed; border-radius: 50%; pointer-events: none; filter: blur(36px); }
+  .brillo.uno  { top: -12vmin; left: -12vmin; width: 60vmin; height: 60vmin; background: rgba(255, 244, 170, .75); }
+  .brillo.dos  { top: 30vh; right: -18vmin; width: 50vmin; height: 50vmin; background: rgba(255, 205, 180, .55); }
+
+  .suelo {
+    position: fixed; bottom: 0; left: -15%;
+    width: 130%; height: 15vh;
+    background: linear-gradient(180deg, #9AD9A2, var(--hoja));
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    z-index: 3;                       /* tapa la base de los tallos */
+    pointer-events: none;
+  }
+
+  /* ============ 3. PANTALLA DE INICIO: el sobre ============ */
+  .inicio {
+    position: fixed; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1.6rem; text-align: center; padding: 1.5rem;
+    transition: opacity .6s ease, transform .6s ease, visibility 0s linear .6s;
+  }
+  .inicio h1 {
+    font-family: 'Dancing Script', 'Brush Script MT', cursive; font-weight: 700;
+    font-size: clamp(3.4rem, 15vw, 5.6rem); line-height: 1;
+  }
+  .inicio p { font-size: 1.05rem; margin-top: -.8rem; opacity: .85; }
+
+  /* El sobre está hecho solo con CSS: un rectángulo y cuatro triángulos */
+  .sobre {
+    position: relative; width: min(78vw, 300px); aspect-ratio: 3 / 2; padding: 0;
+    background: var(--sobre); border: 0; border-radius: 8px; cursor: pointer;
+    box-shadow: 0 14px 30px rgba(58, 47, 91, .25);
+    perspective: 700px;
+    animation: flotar 2.6s ease-in-out infinite alternate;    /* invita a tocarlo */
+  }
+  @keyframes flotar { to { transform: translateY(-7px); } }
+  .sobre:focus-visible { outline: 3px solid var(--tinta); outline-offset: 6px; }
+
+  .sobre span { position: absolute; inset: 0; pointer-events: none; }
+  .sobre .izq    { background: #FCE7AE; clip-path: polygon(0 0, 52% 56%, 0 100%); border-radius: 8px 0 0 8px; }
+  .sobre .der    { background: #FCE7AE; clip-path: polygon(100% 0, 48% 56%, 100% 100%); border-radius: 0 8px 8px 0; }
+  .sobre .abajo  { background: #F9DC93; clip-path: polygon(0 100%, 50% 44%, 100% 100%); border-radius: 0 0 8px 8px; }
+
+  /* La tapa se abre girando hacia arriba */
+  .sobre .tapa {
+    bottom: auto; height: 62%; background: #F5D680; z-index: 2;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0; transition: transform .9s ease;
+  }
+  .sobre .sello {
+    position: absolute; left: 50%; top: 62%; width: 26%; height: auto; z-index: 3;
+    transform: translate(-50%, -50%); filter: drop-shadow(0 3px 4px rgba(120, 70, 0, .35));
+    transition: opacity .3s ease; pointer-events: none;
+  }
+
+  .abierto .sobre { animation: none; }
+  .abierto .sobre .tapa { transform: rotateX(180deg); }
+  .abierto .sobre .sello { opacity: 0; }
+
+  /* Después de abrir el sobre, la pantalla de inicio se va */
+  .abierto .inicio {
+    opacity: 0; transform: translateY(-14px); pointer-events: none; visibility: hidden;
+    transition: opacity .6s ease 1.1s, transform .6s ease 1.1s, visibility 0s linear 1.7s;
+  }
+
+  /* ============ 4. CAMPO DE NARCISOS ============ */
+  .campo { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+
+  .flor {
+    position: absolute; bottom: 5vh;
+    width: var(--tam); height: var(--alto);
+    margin-left: calc(var(--tam) / -2);
+    transform: scale(0); transform-origin: 50% 100%;   /* empieza invisible, crece desde el suelo */
+  }
+  .abierto .flor {
+    animation: crecer 1.6s calc(var(--retraso) + 1.2s) cubic-bezier(.2, 1.2, .4, 1) forwards;
+  }
+  @keyframes crecer { to { transform: scale(1); } }
+
+  /* Balanceo suave, como si hubiera brisa */
+  .balanceo {
+    position: absolute; inset: 0; transform-origin: 50% 100%;
+    animation: mecer var(--mece) ease-in-out var(--mece-retraso) infinite alternate;
+  }
+  @keyframes mecer { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+
+  /* La flor mira un poquito hacia un lado, como los narcisos de verdad */
+  .cabeza {
+    position: absolute; left: 0; top: calc(var(--tam) / -2); width: 100%; height: auto;
+    transform: rotate(var(--giro)); transform-origin: 50% 50%;
+  }
+
+  .tallo {
+    position: absolute; left: 50%; top: 0; bottom: -2vh;
+    width: max(4px, calc(var(--tam) * .05)); transform: translateX(-50%);
+    background: linear-gradient(90deg, #2F8049, #57B173); border-radius: 4px;
+  }
+  /* Hojas largas y finas que salen desde el suelo, a cada lado del tallo */
+  .tallo::before, .tallo::after {
+    content: ''; position: absolute; bottom: 2vh;
+    width: calc(var(--tam) * .17); height: calc(var(--alto) * .8);
+    background: linear-gradient(90deg, #2F8049, #4FAE6C);
+    border-radius: 60% 60% 0 0 / 100% 100% 0 0; transform-origin: 50% 100%;
+  }
+  .tallo::before { right: 30%; transform: rotate(-15deg); }
+  .tallo::after  { left: 30%;  transform: rotate(15deg); }
+
+  /* ============ 5. LA CARTA ============ */
+  .carta {
+    position: fixed; z-index: 4; top: 7vh; left: 50%;
+    width: min(92vw, 480px);
+    transform: translate(-50%, 24px) rotate(-.8deg); opacity: 0; visibility: hidden;
+    transition: opacity .9s ease 2.8s, transform .9s ease 2.8s, visibility 0s 2.8s;
+  }
+  .abierto .carta { transform: translate(-50%, 0) rotate(-.8deg); opacity: 1; visibility: visible; }
+
+  .papel {
+    max-height: 62vh; overflow-y: auto; padding: 1.7rem 1.6rem 1.2rem;
+    background: var(--papel); border-radius: 14px;
+    border: 2px solid rgba(58, 47, 91, .1);
+    box-shadow: 0 12px 34px rgba(58, 47, 91, .25);
+  }
+  /* Cinta adhesiva decorativa arriba de la carta */
+  .cinta {
+    position: absolute; z-index: 1; top: -12px; left: 50%; width: 110px; height: 26px;
+    transform: translateX(-50%) rotate(-3deg);
+    background: rgba(255, 219, 77, .8); border-radius: 3px; box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+  }
+
+  .papel h2 { font-family: 'Dancing Script', 'Brush Script MT', cursive; font-weight: 700; font-size: 2.6rem; line-height: 1.05; margin-bottom: .5rem; }
+  .papel p  { font-size: 1.05rem; line-height: 1.6; margin-bottom: .85rem; }
+  .papel .firma { font-family: 'Dancing Script', 'Brush Script MT', cursive; font-weight: 700; font-size: 2rem; text-align: right; margin: .3rem 0 0; }
+
+  /* ============ 6. ACCESIBILIDAD: si la persona prefiere menos movimiento ============ */
+  @media (prefers-reduced-motion: reduce) {
+    .sobre { animation: none; }
+    .abierto .flor { animation: none; transform: none; }
+    .balanceo { animation: none; }
+    .sobre .tapa { transition-duration: .01s; }
+    .carta, .inicio, .abierto .inicio { transition-duration: .01s; transition-delay: 0s; }
+  }
+</style>
+</head>
+
+<body>
+  <div class="brillo uno"></div>
+  <div class="brillo dos"></div>
+
+  <!-- Definiciones del narciso (se dibuja con JavaScript más abajo) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <radialGradient id="brilloCorona" cx="45%" cy="40%" r="70%">
+        <stop offset="0" stop-color="#FFB300"/>
+        <stop offset="1" stop-color="#E58A00"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <!-- Pantalla de inicio: un sobre que se abre al tocarlo -->
+  <main class="inicio">
+    <button class="sobre" id="abrir" aria-label="Abrir la carta">
+      <span class="izq"></span>
+      <span class="der"></span>
+      <span class="abajo"></span>
+      <span class="tapa"></span>
+      <svg class="sello" viewBox="0 0 200 200" aria-hidden="true"><use href="#narciso"/></svg>
+    </button>
+    <h1>Para Cynthia</h1>
+    <p>Toca el sobre para abrirlo</p>
+  </main>
+
+  <!-- Campo de narcisos (lo llena JavaScript) -->
+  <div class="campo" id="campo" aria-hidden="true"></div>
+  <div class="suelo"></div>
+
+  <!-- ✏️ AQUÍ EDITAS TU MENSAJE: cambia el texto dentro de cada <p> -->
+  <article class="carta" id="carta" tabindex="-1">
+    <div class="cinta"></div>
+    <div class="papel">
+      <h2>Cynthia,</h2>
+      <p>Hay personas que llegan con buena vibra y, sin darte cuenta, te cambian el día. Tú eres una de ellas.</p>
+      <p>Gracias por tu buena onda y por hacer que estar cerca de ti siempre sea agradable. Te estimo mucho.</p>
+      <p>Espero que estas flores te devuelvan un poquito de toda esa buena energía.</p>
+      <p class="firma">Paulo</p>
+    </div>
+  </article>
+
+<script>
+  /* ============ A. DIBUJAR EL NARCISO ============ */
+  const NS = 'http://www.w3.org/2000/svg';
+  const defs = document.querySelector('svg defs');
+
+  function crearNarciso() {
+    const simbolo = document.createElementNS(NS, 'symbol');
+    simbolo.setAttribute('id', 'narciso');
+    simbolo.setAttribute('viewBox', '0 0 200 200');
+
+    // Un pétalo puntiudo (se repite girándolo alrededor del centro)
+    const petalo = 'M100 104 C76 72 80 30 100 6 C120 30 124 72 100 104 Z';
+    let dibujo = '';
+
+    // 6 pétalos de atrás (más oscuros) y 6 de adelante (más claros)
+    for (let i = 0; i < 6; i++) {
+      dibujo += `<path d="${petalo}" fill="#F7C93A" transform="rotate(${i * 60 + 30} 100 100)"/>`;
+    }
+    for (let i = 0; i < 6; i++) {
+      dibujo += `<path d="${petalo}" fill="#FFE45C" stroke="#F2B705" stroke-width="1" transform="rotate(${i * 60} 100 100)"/>`;
+    }
+
+    // La "trompeta" del centro, con borde ondulado hecho de círculos pequeños
+    for (let i = 0; i < 10; i++) {
+      const a = (i * 36) * Math.PI / 180;
+      dibujo += `<circle cx="${(100 + 30 * Math.cos(a)).toFixed(1)}" cy="${(100 + 30 * Math.sin(a)).toFixed(1)}" r="8" fill="#FFB300"/>`;
+    }
+    dibujo += `<circle cx="100" cy="100" r="31" fill="#FFB300"/>`;
+    dibujo += `<circle cx="100" cy="100" r="22" fill="url(#brilloCorona)"/>`;
+    dibujo += `<circle cx="100" cy="100" r="9" fill="#C96F00"/>`;
+
+    simbolo.innerHTML = dibujo;
+    defs.appendChild(simbolo);
+  }
+  crearNarciso();
+
+  /* ============ B. PLANTAR EL CAMPO ============ */
+  const campo = document.getElementById('campo');
+  const esCelular = window.innerWidth < 600;
+  const cantidad  = esCelular ? 7 : 12;
+
+  for (let i = 0; i < cantidad; i++) {
+    const x     = ((i + 0.5) / cantidad) * 100 + (Math.random() * 4 - 2);   // posición horizontal (%)
+    const tam   = (esCelular ? 72 : 92) * (0.8 + Math.random() * 0.45);     // tamaño de la flor (px)
+    const alto  = 10 + Math.random() * 11;                                   // altura del tallo (vh)
+    const espera = 0.1 + i * 0.12 + Math.random() * 0.15;                    // cada flor crece un poco después
+    const giro  = (Math.random() * 24 - 12).toFixed(1);                      // hacia dónde mira la flor (grados)
+
+    const flor = document.createElement('div');
+    flor.className = 'flor';
+    flor.style.cssText =
+      `left:${x}%; --tam:${tam}px; --alto:${alto}vh; --retraso:${espera.toFixed(2)}s; --giro:${giro}deg;` +
+      `--mece:${(4 + Math.random() * 3).toFixed(1)}s; --mece-retraso:-${(Math.random() * 5).toFixed(1)}s;`;
+    flor.innerHTML = `
+      <div class="balanceo">
+        <div class="tallo"></div>
+        <svg class="cabeza" viewBox="0 0 200 200"><use href="#narciso"/></svg>
+      </div>`;
+    campo.appendChild(flor);
+  }
+
+  /* ============ C. ABRIR EL SOBRE Y LA CARTA ============ */
+  const boton = document.getElementById('abrir');
+  const carta = document.getElementById('carta');
+
+  boton.addEventListener('click', () => {
+    document.body.classList.add('abierto');
+    setTimeout(() => carta.focus({ preventScroll: true }), 2900);   // para lectores de pantalla
+  });
+</script>
+</body>
+</html>
